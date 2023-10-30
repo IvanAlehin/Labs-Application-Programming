@@ -21,20 +21,28 @@ def driver_scroller(driver, pix):
     
 
 full_list_cat=[]
+full_list_dog=[]
 
-def make_driver_with_link(link, path_name):
-    global full_list_cat
+def make_driver_with_link(link, path_name, name):
+    global full_list_cat,  full_list_dog
     driver = webdriver.Chrome()
     driver.get(link)
     time.sleep(4)
     driver_scroller(driver, 20000)
     list_pictures = driver.find_elements(By.XPATH, path_name)
-    full_list_cat += list_pictures
-    print(len(full_list_cat))
+    if name=="cat":
+        full_list_cat += list_pictures
+    if name=="dog":
+        full_list_dog += list_pictures
+    print(len(full_list_cat),len(full_list_dog))
 
 for i in range(6):
-    if len(full_list_cat) <= 1010:
-        make_driver_with_link(f"https://yandex.ru/images/search?p={i}&from=tabbar&text=cat&lr=51&rpt=image", "//img[@class='serp-item__thumb justifier__thumb']")
+    if len(full_list_cat) < 1010:
+        make_driver_with_link(f"https://yandex.ru/images/search?p={i}&from=tabbar&text=cat&lr=51&rpt=image", "//img[@class='serp-item__thumb justifier__thumb']","cat")
+        time.sleep(10)
+for i in range(6):        
+    if len(full_list_dog) < 1010:
+        make_driver_with_link(f"https://yandex.ru/images/search?p={i}&from=tabbar&text=dog&lr=51&rpt=image", "//img[@class='serp-item__thumb justifier__thumb']", "dog")
         time.sleep(10)
 
 
@@ -42,15 +50,20 @@ def make_name(value):
     return '0'*(4-len(str(value))) + str(value)
 
 def save_pictures():
-    global full_list_cat
+    global full_list_cat,  full_list_dog
     directory_cat = "dataset/cat"
-    print(f'lens: {len(full_list_cat)}')
+    directory_dog = "dataset/dog"
+    print(f'lens: {len(full_list_cat)}, {len(full_list_dog)}')
     for elem in range(len(full_list_cat)):
         img = urllib.request.urlopen(full_list_cat[elem].get_attribute('src')).read()
         out = open(f"{directory_cat}/{make_name(elem)}.jpg", "wb")
         out.write(img)
         out.close
-    
+    for elem in range(len(full_list_dog)):
+        img = urllib.request.urlopen(full_list_dog[elem].get_attribute('src')).read()
+        out = open(f"{directory_dog}/{make_name(elem)}.jpg", "wb")
+        out.write(img)
+        out.close
 
 if __name__ == "__main__":
     save_pictures()
