@@ -1,8 +1,6 @@
 import os
 import time
 from selenium import webdriver
-
-
 from selenium.webdriver.common.by import By
 import urllib.request
 
@@ -14,36 +12,30 @@ if not os.path.exists('dataset/cat'):
 if not os.path.exists('dataset/dog'):
     os.mkdir('dataset/dog')
 
-
 def driver_scroller(driver, pix):
+    
     sroll_range = 0
     while sroll_range < pix:
-        driver.execute_script(f"window.scrollTo(0, {sroll_range});") # ширина, высота
+        driver.execute_script(f"window.scrollTo(0, {sroll_range});") 
         sroll_range += 4
-        #checkbox = driver.find_element_by_id('button')
-        #checkbox.click()
-
-
+    
 
 full_list_cat=[]
-link = "https://ya.ru/images/search?from=tabbar&text=cat"
-
 
 def make_driver_with_link(link, path_name):
     global full_list_cat
     driver = webdriver.Chrome()
     driver.get(link)
     time.sleep(4)
-    driver_scroller(driver, 30000)
+    driver_scroller(driver, 20000)
     list_pictures = driver.find_elements(By.XPATH, path_name)
     full_list_cat += list_pictures
     print(len(full_list_cat))
 
-if len(full_list_cat) <= 1000:
-    make_driver_with_link(link, "//img[@class='serp-item__thumb justifier__thumb']")
-    time.sleep(10)
-
-
+for i in range(6):
+    if len(full_list_cat) <= 1010:
+        make_driver_with_link(f"https://yandex.ru/images/search?p={i}&from=tabbar&text=cat&lr=51&rpt=image", "//img[@class='serp-item__thumb justifier__thumb']")
+        time.sleep(10)
 
 
 def make_name(value):
@@ -59,8 +51,6 @@ def save_pictures():
         out.write(img)
         out.close
     
-
-
 
 if __name__ == "__main__":
     save_pictures()
