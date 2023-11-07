@@ -5,65 +5,70 @@ from selenium.webdriver.common.by import By
 import urllib.request
 
 
-if not os.path.exists('dataset'):
-    os.mkdir('dataset')
-if not os.path.exists('dataset/cat'):
-    os.mkdir('dataset/cat')
-if not os.path.exists('dataset/dog'):
-    os.mkdir('dataset/dog')
+def make_directory(directory_cat, directory_dog):
+    if not os.path.exists('dataset'):
+        os.mkdir('dataset')
+    if not os.path.exists(directory_cat):
+        os.mkdir('dataset/cat')
+    if not os.path.exists(directory_dog):
+        os.mkdir('dataset/dog')
 
-def driver_scroller(driver, pix):
+
+def scroll_driver(driver, height):
+    scroll_range = 0
+    while scroll_range < height:
+        driver.execute_script(f"window.scrollTo(0, {scroll_range});") 
+        scroll_range += 10
     
-    sroll_range = 0
-    while sroll_range < pix:
-        driver.execute_script(f"window.scrollTo(0, {sroll_range});") 
-        sroll_range += 4
-    
 
-full_list_cat=[]
-full_list_dog=[]
+list_cat=[]
+list_dog=[]
 
-def make_driver_with_link(link, path_name, name):
-    global full_list_cat,  full_list_dog
+def make_driver(link, path_name, name):
+    global list_cat,  list_dog
     driver = webdriver.Chrome()
     driver.get(link)
     time.sleep(4)
-    driver_scroller(driver, 20000)
+    scroll_driver(driver, 20000)
     list_pictures = driver.find_elements(By.XPATH, path_name)
     if name=="cat":
-        full_list_cat += list_pictures
+        list_cat += list_pictures
     if name=="dog":
-        full_list_dog += list_pictures
-    print(len(full_list_cat),len(full_list_dog))
-
-for i in range(6):
-    if len(full_list_cat) < 1010:
-        make_driver_with_link(f"https://yandex.ru/images/search?p={i}&from=tabbar&text=cat&lr=51&rpt=image", "//img[@class='serp-item__thumb justifier__thumb']","cat")
-        time.sleep(10)
-for i in range(6):        
-    if len(full_list_dog) < 1010:
-        make_driver_with_link(f"https://yandex.ru/images/search?p={i}&from=tabbar&text=dog&lr=51&rpt=image", "//img[@class='serp-item__thumb justifier__thumb']", "dog")
-        time.sleep(10)
+        list_dog += list_pictures
+    print(len(list_cat),len(list_dog))
 
 
 def make_name(value):
     return '0'*(4-len(str(value))) + str(value)
 
-def save_pictures():
-    global full_list_cat,  full_list_dog
+def save_image():
+    global list_cat,  list_dog
     directory_cat = "dataset/cat"
     directory_dog = "dataset/dog"
-    print(f'lens: {len(full_list_cat)}, {len(full_list_dog)}')
-    for elem in range(len(full_list_cat)):
-        img = urllib.request.urlopen(full_list_cat[elem].get_attribute('src')).read()
+    make_directory(directory_cat, directory_dog)
+    print(f'lens: {len(list_cat)}, {len(list_dog)}')
+
+    for elem in range(len(list_cat)):
+        img = urllib.request.urlopen(list_cat[elem].get_attribute('src')).read()
         out = open(f"{directory_cat}/{make_name(elem)}.jpg", "wb")
         out.write(img)
         out.close
-    for elem in range(len(full_list_dog)):
-        img = urllib.request.urlopen(full_list_dog[elem].get_attribute('src')).read()
+    for elem in range(len(list_dog)):
+        img = urllib.request.urlopen(list_dog[elem].get_attribute('src')).read()
         out = open(f"{directory_dog}/{make_name(elem)}.jpg", "wb")
         out.write(img)
         out.close
 
+def main():
+    for i in range(6):
+        if len(list_cat) < 1000:
+            make_driver(f"https://yandex.ru/images/search?p={i}&from=tabbar&text=cat&lr=51&rpt=image", "//img[@class='serp-item__thumb justifier__thumb']","cat")
+            time.sleep(10)
+    for i in range(6):        
+        if len(list_dog) < 1000:
+            make_driver(f"https://yandex.ru/images/search?p={i}&from=tabbar&text=dog&lr=51&rpt=image", "//img[@class='serp-item__thumb justifier__thumb']", "dog")
+            time.sleep(10)
+    save_image()
+    
 if __name__ == "__main__":
-    save_pictures()
+    main()
